@@ -165,7 +165,7 @@ function _favdir_show() {
 		then
 			printf "\033[31m%-15s\033[m%s\n" "${fname[i]}" "${fpath[i]}"
 
-		elif grep -w "${fname[i]}" "$favdir_temp" >/dev/null
+		elif grep -w "^${fname[i]}" "$favdir_temp" >/dev/null
 		then
 			printf "\033[01;36m%-15s\033[m%s\n" "${fname[i]}" "${fpath[i]}"
 
