@@ -387,22 +387,7 @@ function _favdir_complement() {
 	return 0
 }
 
-function _favdir_complement4bash() {
-	local curw
-	COMPREPLY=()
-	curw=${COMP_WORDS[COMP_CWORD]}
-	#COMPREPLY=( $( compgen -W '`_favdir_candidacy`' -- $curw ) )
-	COMPREPLY=( $( compgen -W "`echo $( awk '{print $1}' $favdir_list )`" -- $curw ) )
-	return 0
-}
-
-
-function _favdir_complement4zsh() {
-	if (( CURRENT == 2 )); then
-		compadd `awk '{print $1}' $favdir_list`
-	fi
-}
-
+# coding part
 [ -d "$favdir_dir" ] && unset _favdir_initialize || _favdir_initialize
 
 alias favdir='_favdir_usage'
@@ -413,14 +398,13 @@ alias del='_favdir_delete'
 alias p='_favdir_print'
 
 if [ "$BASH_VERSION" ]; then
-	complete -F _favdir_complement4bash go
-	complete -F _favdir_complement4bash del
-	complete -F _favdir_complement4bash p
+	complete -F _favdir_complement go
+	complete -F _favdir_complement del
+	complete -F _favdir_complement p
 elif [ "$ZSH_VERSION" ]; then
 	autoload -U compinit
 	compinit -u
-	compdef _favdir_complement4zsh _favdir_go
-	compdef _favdir_complement4zsh _favdir_delete
-	compdef _favdir_complement4zsh _favdir_print
-
+	compdef _favdir_complement go
+	compdef _favdir_complement del
+	compdef _favdir_complement p
 fi
