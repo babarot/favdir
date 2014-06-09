@@ -339,38 +339,35 @@ function _favdir_print() {
 
 function _favdir_refresh() {
 	local -i i=
-	local -i count=0
-	local -a fname=( $( awk '{print $1}' $favdir_list ) )
-	local -a fpath=( $( awk '{print $2}' $favdir_list ) )
-	local -r line=$( wc -l <$favdir_list )
-	local -a str=()
+	local -i count=
+	local -a fname
+	fname=( $( awk '{print $1}' $favdir_list ) )
+	local -a fpath
+	fpath=( $( awk '{print $2}' $favdir_list ) )
+	local line
+	line=$( wc -l <$favdir_list )
+	local -a str
 	
-	for ((i=0; i<"$line"; i++)); do
+	cp -f $favdir_list ${favdir_list}.bak
+	for (( i=0; i<$line; i++ )); do
 		if [ -d "${fpath[i]}" ]; then
 			let count++
 		else
-			_bookmark_delete "${fname[i]}"
-			#str+="${name[i]}"
+			_favdir_delete "${fname[i]}"
 			str=("${str[@]}" "${fname[i]}")
 		fi
 	done
 
 	if [ $count -eq $line ]; then
-		echo "All paths are available."
+		#echo "All paths are available."
 		return 1
 	else
-		#_bookmark_show
-		echo "Non-existing ${#str[*]} items have been removed."
-		echo "${#str[@]}: ${str[@]}"
+		echo "have removed ${#str[*]} items that do not exist"
+		diff -u ${favdir_list}.bak $favdir_list
 		return 0
 	fi
 
-	unset i count fname fpath line
-}
-
-function _favdir_candidacy() {
-	[ ! -f $favdir_list ] && return 1
-	echo $( awk '{print $1}' $favdir_list )
+	unset i count fname fpath line str
 }
 
 function _favdir_complement() {
