@@ -9,10 +9,10 @@ install:
 	mkdir -p $(INSTALL_DIR)
 	rsync --exclude ".git/" --exclude ".DS_Store" --exclude "install.sh" \
 		--exclude "Makefile" --exclude "README.md" -avh --no-perms . $(INSTALL_DIR)
-	echo 'source $(INSTALL_DIR)/$(INSTALL_FILE) #FAVDIR' >>~/.bash_profile
-	source ~/.bash_profile
+	echo 'source $(INSTALL_DIR)/$(INSTALL_FILE) #FAVDIR' >>~/.bashrc
+	source ~/.bashrc
 
 clean:
 	@$(RM) -rf $(INSTALL_DIR)/$(INSTALL_FILE) $(FAVDIR)
-	@cat ~/.bashrc | (rm ~/.bashrc; sed '/FAVDIR/d' > ~/.bash_profile)
+	@cat ~/.bashrc | (rm ~/.bashrc; sed '/FAVDIR/d' > ~/.bashrc)
 
