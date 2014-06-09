@@ -19,9 +19,11 @@ if [ "$ZSH_NAME" = "zsh" ];then
 fi
 
 function _favdir_usage() {
-	local -i width
-	width=$( stty 'size' <'/dev/tty' | cut -d' ' -f2 )
+	local list
+	local -i i width 
 	local -a commands
+
+	width=$( stty 'size' <'/dev/tty' | cut -d' ' -f2 )
 	commands=('show' 'regist' 'go' 'print' 'delete')
 
 	if [ $# -eq 0 ]; then
@@ -31,39 +33,38 @@ function _favdir_usage() {
 	fi
 
 	for list do
-		echo -en "Usage: "
+		echo -en 'Usage: '
 		case "$list" in
 			'show')
 				echo -en "show [OPTION]\n"
 				echo -en "  Display all registered names and paths.\n"
-				echo -en "  Need to run independently all options.\n\n"
+				echo -en "  Need to run independently for all options.\n\n"
 				echo -en "Options:\n"
 				echo -en "  -h, --help     display this help and exit\n"
-				echo -en "  -e, --edit     edit bookmark list\n"
+				echo -en "  -e, --edit     edit list\n"
 				echo -en "  -p, --plane    to output the bookmark list without a color\n"
 				echo -en "  -R, --refresh  to update all the paths that are not valid\n\n"
 				shift
 				;;
 			'regist')
 				echo -en "reg [OPTION] [name]\n"
-				echo -en "  If there is an argument, register by the argument name\n"
-				echo -en "  and otherwise register it current directory name.\n\n"
+				echo -en "  If there is arguments, save the argument as a registered name.\n"
+				echo -en "  Otherwise, save current directory name.\n\n"
 				echo -en "Options:\n"
 				echo -en "  -h, --help     display this help and exit\n"
-				echo -en "  -t, --temp     generate the name and path as disposable element\n\n"
+				echo -en "  -t, --temp     save paths as a disposable\n\n"
 				shift
 				;;
 			'go')
-				echo -en "go [name]\n"
-				echo -en "  If there is an argument, go to the name of path\n"
-				echo -en "  and otherwise do movement like 'show'.\n\n"
+				echo -en "go name\n"
+				echo -en "  Go to the registered path just like jumping\n\n"
 				echo -en "Options:\n"
 				echo -en "  -h, --help     display this help and exit\n\n"
 				shift
 				;;
 			'print')
 				echo -en "p name\n"
-				echo -en "  print the name of path.\n\n"
+				echo -en "  Output the registered name and path.\n\n"
 				echo -en "Options:\n"
 				echo -en "  -h, --help     display this help and exit\n\n"
 				shift
@@ -76,33 +77,42 @@ function _favdir_usage() {
 				shift
 				;;
 		esac
-		[ "$#" -ne 0 ] && for (( i=0; i<$width; i++ )); do
-			echo -en "_"
+		[ $# -ne 0 ] && for (( i=0; i<$width; i++ )); do
+			echo -en '_'
 		done && echo -en "\n\n"
 	done
 
+	unset list i width commands
 	return $exit_usage
 }
 
 function _favdir_initialize() {
 	# If there is a directory,
-	# the initialization function is not performed
+	# this function is not performed
 	[ -d "$favdir_dir" ] && return 1
 
-	local ans=
 	mkdir -p "$favdir_dir"
 	touch "$favdir_list" "$favdir_log" "$favdir_temp"
 
-	unset ans 
 	return 0
 }
 
-function _favdir_show() {
-	[ -f "$favdir_list" ] || { echo "$(basename $favdir_list): no exist"; return 1; }
+#----------------------#
+# favdir MAIN commands #
+#----------------------#
 
-	local opt=
-	for opt in "$@"
-	do
+#(1/5): show
+function _favdir_show() {
+	# show help about show function
+	[ "$1" = "-h" ] || [ "$1" = "--help" ] && { _favdir_usage 'show'; return $exit_usage; }
+	# if listfile does not exist, output error message and exit
+	[ -f $favdir_list ] || { echo "$(basename $bookmarklist): no exist"; return 1; }
+
+	local opt
+	local -i i 
+	local -a param fname fpath
+
+	for opt do
 		case "$opt" in
 			'-h'|'--help' )
 				_favdir_usage 'show'
@@ -119,7 +129,7 @@ function _favdir_show() {
 				return 0
 				;;
 			'-R'|'--refresh' )
-				if _favdir_refresh; then
+				if _favdir_show_refresh; then
 					return 0
 				else
 					return 1
@@ -147,10 +157,7 @@ function _favdir_show() {
 	[ ! -f "$favdir_log" ]  && touch "$favdir_log"
 	[ ! -f "$favdir_temp" ] && touch "$favdir_temp"
 
-	local -i i
-	local -a fname
 	fname=( `awk '{print $1}' "$favdir_list"` )
-	local -a fpath
 	fpath=( `awk '{print $2}' "$favdir_list"` )
 
 	for (( i=0; i<${#fname[*]}; i++ )); do
@@ -167,15 +174,21 @@ function _favdir_show() {
 		fi
 	done | sed "s $HOME ~ g"
 
-	unset fname fpath i opt
+	unset opt param i fname fpath
 }
 
+#(2/5): regist
 function _favdir_regist() {
-	[ -f $favdir_list ] || touch $favdir_list
+	# show help about regist function
+	[ "$1" = "-h" ] || [ "$1" = "--help" ] && { _favdir_usage 'regist'; return $exit_usage; }
+	# if listfile does not exist, create it
+	[ -f "$favdir_list" ] || touch "$favdir_list"
 
-	local opt=
-	for opt in "$@"
-	do
+	local opt option_t fname
+	local -i limit i
+	local -a param
+
+	for opt do
 		case "$opt" in
 			'-h'|'--help' )
 				_favdir_usage 'regist'
@@ -197,15 +210,11 @@ function _favdir_regist() {
 		esac
 	done
 
-	local -i limit
 	limit=$(( $( stty 'size' <'/dev/tty' | cut -d' ' -f1 ) - 2 ))
 	[ $( wc -l <"$favdir_list" ) -ge "$limit" ] && {
 		echo "The maximum number that can enroll in a bookmark list is $limit cases."
 		return 1
 	}
-
-	local -i i=
-	local fname=
 
 	[ $# -eq 0 ] && fname=${PWD##*/} || fname="$1"
 	[ ${#fname} -gt 14 ] && { echo "Please input 14 characters or less."; return 1; }
@@ -218,15 +227,20 @@ function _favdir_regist() {
 		printf "%-15s%s\n" $fname "$PWD" >>$favdir_list
 		return 0
 	fi
-	unset limit i fname opt option_t
+
+	unset opt option_t fname limit i param
 }
 
+#(3/5): go
 function _favdir_go() {
+	# show go about go function
 	[ "$1" = "-h" ] || [ "$1" = "--help" ] && { _favdir_usage 'go'; return $exit_usage; }
+	# if listfile does not exist, output error message and exit
+	[ -f $favdir_list ] || { echo "$(basename $bookmarklist): no exist"; return 1; }
 
-	local fname
+	local fname fpath
+
 	fname=$( awk '{print $1}' $favdir_list | command grep -w -E "^$1$" )
-	local fpath
 	fpath=$( awk '$1 ~ /'"^$1"'$/' $favdir_list | awk '{print $2}' )
 
 	if [ $# -eq 0 ]; then
@@ -262,10 +276,14 @@ function _favdir_go() {
 	unset fname fpath
 }
 
+#(4/5): delete
 function _favdir_delete() {
-	[ -f $favdir_list ] || { echo "$(basename $bookmarklist): No exist"; return 1; }
+	# show help about delete function
 	[ "$1" = "-h" ] || [ "$1" = "--help" ] && { _favdir_usage 'delete'; return $exit_usage; }
-	[ "$1" = "-r" ] || [ "$1" = "--refresh" ] && { _favdir_refresh; return 0; }
+	# if listfile does not exist, output error message and exit
+	[ -f $favdir_list ] || { echo "$(basename $bookmarklist): no exist"; return 1; }
+
+	[ "$1" = "-R" ] || [ "$1" = "--refresh" ] && { _favdir_show_refresh; return 0; }
 
 	[ -s $favdir_list ] || { echo "$(basename $favdir_list) is empty."; return 1; }
 	[ $# -eq 0 ] && {
@@ -306,8 +324,12 @@ function _favdir_delete() {
 	done
 }
 
+#(5/5): print
 function _favdir_print() {
+	# show go about print function
 	[ "$1" = "-h" ] || [ "$1" = "--help" ] && { _favdir_usage 'print'; return $exit_usage; }
+	# if listfile does not exist, output error message and exit
+	[ -f $favdir_list ] || { echo "$(basename $bookmarklist): no exist"; return 1; }
 
 	local fname
 	fname=$( awk '{print $1}' $favdir_list | command grep -w -E "^$1$" )
@@ -337,7 +359,11 @@ function _favdir_print() {
 	unset fname fpath
 }
 
-function _favdir_refresh() {
+#----------------------#
+# favdir SUB functions #
+#----------------------#
+
+function _favdir_show_refresh() {
 	local -i i=
 	local -i count=
 	local -a fname
@@ -384,7 +410,9 @@ function _favdir_complement() {
 	return 0
 }
 
-# coding part
+#
+# Establishment
+#
 [ -d "$favdir_dir" ] && unset _favdir_initialize || _favdir_initialize
 
 alias favdir='_favdir_usage'
