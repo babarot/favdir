@@ -255,7 +255,7 @@ function _favdir_go() {
 		# case of registered
 		else
 			if cd "$fpath" 2>/dev/null; then
-				echo "$(date '+%Y-%m-%d %H:%M:%S')	$1" >>$favdir_log
+				echo "$(date '+%Y-%m-%d %H:%M:%S')	$1	$fpath" >>$favdir_log
 				# case of -t option
 				if [ -f $favdir_temp ]; then
 					if awk '{print $2}' $favdir_temp | grep -x $fpath >/dev/null; then
