@@ -374,7 +374,7 @@ function _favdir_show_refresh() {
 	line=$( wc -l <$favdir_list )
 	local -a str
 	
-	cp -f $favdir_list ${favdir_list}.bak
+	command cp -f $favdir_list ${favdir_list}.bak
 	for (( i=0; i<$line; i++ )); do
 		if [ -d "${fpath[i]}" ]; then
 			let count++
@@ -388,8 +388,8 @@ function _favdir_show_refresh() {
 		#echo "All paths are available."
 		return 1
 	else
-		echo "have removed ${#str[*]} items that do not exist"
-		diff -u ${favdir_list}.bak $favdir_list
+		echo "Removed ${#str[*]} items that do not exist"
+		command diff -u ${favdir_list}.bak $favdir_list
 		return 0
 	fi
 
