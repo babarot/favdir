@@ -430,7 +430,16 @@ function _favdir_show_refresh()
     return 1
   else
     echo "Removed ${#str[*]} items that do not exist"
-    command diff -u ${favdir_list}.bak $favdir_list
+    IFS=$'\n'
+    local -a difflist
+    difflist=( `command diff -u ${favdir_list}.bak $favdir_list` )
+    for (( i=0; i<${#difflist[*]}; i++ )); do
+      if echo "${difflist[i]}" | grep -q '^-\{1\}[^-]'; then
+        printf "\033[34m%s\033[m\n" "${difflist[i]}"
+      else
+        printf "%s\n" "${difflist[i]}"
+      fi
+    done
     return 0
   fi
 
