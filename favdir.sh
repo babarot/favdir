@@ -171,7 +171,9 @@ function _favdir_show()
   for (( i=0; i<${#fname[*]}; i++ )); do
     if grep -w "${fname[i]}" "$favdir_log" >/dev/null; then
       printf "\033[31m%-15s\033[m%s\n" "${fname[i]}" "${fpath[i]}"
-
+    elif grep -w "^${fname[i]}" "$favdir_temp" >/dev/null
+    then
+      printf "\033[01;36m%-15s\033[m%s\n" "${fname[i]}" "${fpath[i]}"
     else
       printf "\033[33m%-15s\033[m%s\n" "${fname[i]}" "${fpath[i]}"
     fi
@@ -200,6 +202,10 @@ function _favdir_regist()
       '-h'|'--help' )
         _favdir_usage 'regist'
         return 0
+        ;;
+      '-t'|'--temp' )
+        shift 1
+        local -i option_t=1
         ;;
       '--' )
         shift 1
