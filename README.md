@@ -9,7 +9,7 @@ Save favorite directories and jump to it
 
 The `favdir.sh` is a plugin that save your favorite directorie and jump to it. If you have deep directory structure having a directory in a lower-level layer of a directory, this plugin exerts great power. Saving preliminarily, easily refer to that directory. First of all, try to experience.
 
-![](http://cl.ly/image/1v2H1A2o133H/vim-favdir.gif)
+![](http://cl.ly/image/2l1R1E3Z1H1P/favdir.gif)
 
 ## Requirement
 
