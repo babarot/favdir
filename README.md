@@ -11,6 +11,8 @@ The `favdir.sh` is a plugin that save your favorite directorie and jump to it. I
 
 ![](http://cl.ly/image/2l1R1E3Z1H1P/favdir.gif)
 
+It was heavily inspired by [bashmark](https://github.com/b4b4r07/bashmark) and the likes.
+
 ## Requirement
 
 either
