@@ -5,10 +5,11 @@ if [ ! "$BASH_VERSION" -a ! "$ZSH_VERSION" ]; then
 fi
 
 # Declare and initialize a variable
-declare favdir="$HOME/.favdir"
+declare favdir="${FAVDIR_HOME:=~/.favdir}"
+
 declare favdir_list="$favdir/favdirlist"
-declare favdir_log="$favdir/favdirlog"
-declare favdir_temp="$favdir/favdirtemp"
+declare favdir_log="$favdir/.favdirlog"
+declare favdir_temp="$favdir/.favdirtemp"
 
 # Usage {{{1
 function _favdir_usage()
