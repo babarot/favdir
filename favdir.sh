@@ -6,6 +6,7 @@ fi
 
 # Declare and initialize a variable
 declare favdir="${FAVDIR_HOME:=~/.favdir}"
+expand() { echo "$@" | sed "s ~ $HOME g"; }
 
 declare favdir_list="$favdir/favdirlist"
 declare favdir_log="$favdir/.favdirlog"
@@ -272,6 +273,7 @@ function _favdir_gg()
       return 1
       # case of registered
     else
+      fpath=$(expand "$fpath")
       if cd "$fpath" 2>/dev/null; then
         echo "$(date '+%Y-%m-%d %H:%M:%S')  $1  $fpath" >>$favdir_log
         # case of -t option
@@ -377,6 +379,7 @@ function _favdir_print()
   local fpath
   fpath=$( awk '$1 ~ /'"^$1"'$/' $favdir_list | awk '{print $2}' )
 
+        fpath=$(expand "$fpath")
   if [ $# -eq 0 ]; then
     echo "p: too few arguments"
     echo "Try 'p --help' for more information."
@@ -417,9 +420,12 @@ function _favdir_show_refresh()
   line=$( wc -l <$favdir_list )
   local -a str
 
+  local target
   command cp -f $favdir_list ${favdir_list}.bak
   for (( i=0; i<$line; i++ )); do
-    if [ -d "${fpath[i]}" ]; then
+    target=$(expand "${fpath[i]}")
+    #if [ -d "${fpath[i]}" ]; then
+    if [ -d "$target" ]; then
       let count++
     else
       _favdir_delete "${fname[i]}"
