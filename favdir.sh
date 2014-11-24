@@ -172,9 +172,12 @@ function _favdir_show()
 
   for (( i=0; i<${#fname[*]}; i++ )); do
     #if grep -w "${fname[i]}" "$favdir_log" >/dev/null; then
+    #if awk '$3 ~ /^'"${fname[i]}"'$/' "$favdir_log" >/dev/null; then
     if awk '{print $3}' "$favdir_log" | grep -w "${fname[i]}" >/dev/null; then
       printf "\033[31m%-15s\033[m%s\n" "${fname[i]}" "${fpath[i]}"
-    elif grep -w "^${fname[i]}" "$favdir_temp" >/dev/null
+    #elif grep -w "^${fname[i]}" "$favdir_temp" >/dev/null
+    #elif awk '$1 ~ /^'"${fname[i]}"'$/{print $1}' "$favdir_temp" >/dev/null
+    elif awk '{print $1}' "$favdir_temp" | grep -x "${fname[i]}" >/dev/null
     then
       printf "\033[01;36m%-15s\033[m%s\n" "${fname[i]}" "${fpath[i]}"
     else
@@ -238,8 +241,10 @@ function _favdir_regist()
     echo "$fname: Already exist"
     return 1
   else
-    [ "$option_t" ] && printf "%-15s%s\n" $fname "$PWD" >>$favdir_temp
-    printf "%-15s%s\n" $fname "$PWD" >>$favdir_list
+    local registered_path
+    registered_path=$(echo "$PWD" | sed "s $HOME ~ g")
+    [ "$option_t" ] && printf "%-15s%s\n" $fname "$registered_path" >>$favdir_temp
+    printf "%-15s%s\n" $fname "$registered_path" >>$favdir_list
     return 0
   fi
 }
@@ -254,13 +259,13 @@ function _favdir_gg()
 
   # show gg about gg function
   [ "$1" = "-h" ] || [ "$1" = "--help" ] && { _favdir_usage 'gg'; return 0; }
+
   # if listfile does not exist, output error message and exit
-  [ -f $favdir_list ] || { echo "$(basename $bookmarklist): no exist"; return 1; }
+  [ -f $favdir_list ] || { echo "$(basename $favdir_list): no exist"; return 1; }
 
   local fname fpath
-
   fname=$( awk '{print $1}' $favdir_list | command grep -w -E "^$1$" )
-  fpath=$( awk '$1 ~ /'"^$1"'$/' $favdir_list | awk '{print $2}' )
+  fpath=$( awk '$1 ~ /'"^$1"'$/{print $2}' $favdir_list )
 
   if [ $# -eq 0 ]; then
     echo "gg: too few arguments"
@@ -275,12 +280,19 @@ function _favdir_gg()
     else
       fpath=$(expand "$fpath")
       if cd "$fpath" 2>/dev/null; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S')  $1  $fpath" >>$favdir_log
+        printf "$(date '+%Y-%m-%d %H:%M:%S') $1 $fpath\n" >>"$favdir_log"
         # case of -t option
         if [ -f $favdir_temp ]; then
-          if awk '{print $2}' $favdir_temp | grep -x $fpath >/dev/null; then
+          #if awk '{print $1}' $favdir_temp | grep -x $fname >/dev/null; then
+          #if awk '$1 ~ /^'"$fname"'$/{print $1}' $favdir_temp | grep . >/dev/null; then
+          if awk '{print $1}' $favdir_temp | grep -E "^$fname$" >/dev/null; then
+          #if awk '$1 ~ /^'"$fname"'$/{print $1}' $favdir_temp | grep -E "^$fname$" >/dev/null; then
             _favdir_delete $fname
-            sed -i '' "/^$1$/d" $favdir_temp
+            #sed -i '' "/^$1$/d" $favdir_temp
+            tmp=$(cat "${favdir_temp}")
+            #echo $(echo "${tmp}" | awk '$1 !~ /^'"$fname"'$/') >|$favdir_temp
+            echo "${tmp}" | awk '$1 !~ /^'"$fname"'$/' >|$favdir_temp
+
           fi
         fi
         return 0
@@ -359,6 +371,16 @@ done
 
 #unset noclobber
 echo "${tmp}" >|$favdir_list
+
+tmp_log=$(cat "${favdir_log}")
+local j
+for j in "$@"
+do
+  tmp_log=$(echo "${tmp_log}" | awk '$3 !~ /^'"$j"'$/')
+done
+
+#unset noclobber
+echo "${tmp_log}" >|$favdir_log
 }
 
 #(5/5): print {{{1
