@@ -1,9 +1,9 @@
-favdir
+# FavDir - favorite directories
 ====
 
-**Overview**
+## Overview
 
-Save favorite directories and jump to it
+Save favorite directories and jump to it.
 
 ## Description
 
@@ -15,10 +15,10 @@ It was heavily inspired by [bashmark](https://github.com/b4b4r07/bashmark) and t
 
 ## Requirement
 
-either
+Tested in both.
 
-- Bash 3.2+
-- Zsh 5.0.2+
+- Bash 3.2
+- Zsh 5.0.2
 
 ## Usage
 
@@ -93,37 +93,18 @@ Print `{name}`'path
 	
 ## Installation
 
-Put `favdir.sh` under `$PATH`.
+Download favdir.sh by git
 
-### Git install
+	git clone https://github.com/b4b4r07/favdir.git
 
-You can clone the repository wherever you want. I like to keep it in `~/github/favdir`.
+Put something like this in your `$HOME/.bashrc` or `$HOME/.zshrc`:
 
-	git clone https://github.com/b4b4r07/favdir.git && cd favdir && ./install.sh
-
-To update, cd into your local dotfiles repository and then:
-
-	git pull origin master
-
-### Git-free install
-
-To install these dotfiles without Git:
-
-	cd; wget -O - https://github.com/b4b4r07/favdir/tarball/master | tar xvf -
-
-To update later on, just run that command again.
+	source /path/to/favdir.sh
 
 ## Licence
 
->The MIT License ([MIT](http://opensource.org/licenses/MIT))
->
->Copyright (c) 2014 b4b4r07
->
->Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
->
->The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
->
->THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+>Copyright (c) 2014 "BABAROT" b4b4r07
+>Licensed under the [MIT](http://opensource.org/licenses/MIT) license.
 
 ## Author
 
@@ -132,5 +113,7 @@ To update later on, just run that command again.
 | [b4b4r07](http://github.com/b4b4r07/ "b4b4r07 on GitHub") |
 
 ## See also
+
+The favdir written in Vim script.
 
 - [vim-favdir](https://github.com/b4b4r07/vim-favdir)
