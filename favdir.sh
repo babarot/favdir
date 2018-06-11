@@ -500,11 +500,11 @@ else
 fi
 
 alias favdir='_favdir_usage'
-alias show='_favdir_show'
-alias reg='_favdir_regist'
-alias gg="${ZSH_VERSION:+nocorrect} _favdir_gg"
-alias del='_favdir_delete'
-alias p='_favdir_print'
+alias favshow='_favdir_show'
+alias favreg='_favdir_regist'
+alias favgg="${ZSH_VERSION:+nocorrect} _favdir_gg"
+alias favdel='_favdir_delete'
+alias favp='_favdir_print'
 
 if [ -n "$BASH_VERSION" ]; then
   complete -F _favdir_complement gg
