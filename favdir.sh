@@ -5,7 +5,7 @@ if [ ! "$BASH_VERSION" -a ! "$ZSH_VERSION" ]; then
 fi
 
 # Declare and initialize a variable
-declare favdir="${FAVDIR_HOME:=~/.favdir}"
+declare favdir="${FAVDIR_HOME:=${HOME}/.favdir}"
 expand() { echo "$@" | sed "s ~ $HOME g"; }
 
 declare favdir_list="$favdir/favdirlist"
